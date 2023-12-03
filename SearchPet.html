@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Posts by Location</title>
+    <link rel="stylesheet" type="text/css" href="SearchPet.css">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>Search Posts by Location</h1>
+        </div>
+        <div class="header-right">
+            <form id="searchForm">
+                <label for="location_found">Location Found:</label>
+                <input type="text" id="location_found" name="location_found" placeholder="Enter location" required="true">
+                <input type="submit" value="Search">
+            </form>
+        </div>
+    </header>
+
+    <div id="results"></div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const locationFound = document.getElementById('location_found').value;
+
+            try {
+                const response = await fetch(`http://localhost:3030/api/lostpet/search/${locationFound}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    console.log("data",data)
+                    displayResults(data.posts);
+                } else {
+                    console.error(data.message);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        function displayResults(posts) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (posts.length === 0) {
+                resultsDiv.textContent = 'No matching posts found.';
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            posts.forEach(post => {
+                const li = document.createElement('li');
+                li.textContent = `Species: ${post.species}, Breed: ${post.breed}, Weight: ${post.weight}, Color: ${post.pet_color}`;
+                ul.appendChild(li);
+            });
+
+            resultsDiv.appendChild(ul);
+        }
+    </script>
+</body>
+</html>
